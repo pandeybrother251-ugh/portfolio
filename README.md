@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Replace with your Hub Agent admin email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "pandeybrother251@gmail.com";
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /parcels/{parcelId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+    }
+  }
+}
